@@ -1,0 +1,6 @@
+#Word Lengths
+#Using a list comprehension:
+
+words = ["python", "java", "sql", "oop"]
+lenght = [len(w) for w in  words]
+print(lenght)
