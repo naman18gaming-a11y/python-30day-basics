@@ -1,13 +1,13 @@
-# palindrome in python
-num =  int(input("enter the number:"))
+num = int(input("Enter a number: "))
 temp = num
-reverse = 0 
+rev = 0
+
 while temp > 0:
     digit = temp % 10
-    reverse = digit * 10 + reverse
+    rev = rev * 10 + digit
     temp = temp // 10
-    
-    if num == reverse:
-        print("the number is palindrome")      
-    else:
-        print("the number is not palindrome")
+
+if num == rev:
+    print("Palindrome number")
+else:
+    print("Not a palindrome number")

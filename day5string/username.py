@@ -1,4 +1,6 @@
-# Username Formatter
+#Username Formatter
+from shlex import join
+
 
 username = input("enter the username:")
 if len(username) < 5:
@@ -8,4 +10,5 @@ elif len(username) > 15:
 else:
     print("username is valid")
     formatted_username = username.lower().replace(" ", "_")
-    print("the formatted username is:", formatted_username)
+    print("the formatted username is:", 
+           formatted_username)

@@ -24,5 +24,5 @@ def calculator(num1, num2, operator):
         print("Invalid operator. Please enter +, -, *, or /.")
         return None
 
-# Call the function outside
+
 print(calculator(10, 5, "+"))

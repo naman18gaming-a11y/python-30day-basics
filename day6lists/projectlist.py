@@ -26,10 +26,9 @@ elif average_marks >= 60:
 else:
     print("Grade: F")
 
-# Count students scoring above 50
 count_above_90 = sum(1 for m in marks if m > 90)
-print("Students scoring above 50:", count_above_90)
+print("Students scoring above 90:", count_above_90)
 
-# Sorted marks
+
 marks.sort()
 print("Sorted Marks:", marks)

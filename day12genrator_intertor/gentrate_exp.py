@@ -3,6 +3,8 @@ def fun():
     yield 1
     yield 2
     yield 3
+    yield 4
+    yield 5
 
 # Iterate over generator
 for val in fun():
