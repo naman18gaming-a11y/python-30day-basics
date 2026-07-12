@@ -1,0 +1,11 @@
+Order_ID,Customer,City,Category,Product,Quantity,Price,Rating
+101,Naman,Delhi,Electronics,Mouse,2,500,4.5
+102,Rahul,Mumbai,Electronics,Keyboard,1,1500,4.2
+103,Priya,Delhi,Furniture,Chair,2,3500,4.8
+104,Aman,Pune,Electronics,Monitor,1,12000,4.7
+105,Riya,Mumbai,Furniture,Table,1,5000,4.1
+106,Arjun,Delhi,Electronics,Laptop,1,65000,4.9
+107,Simran,Delhi,Accessories,Headphones,2,2500,4.4
+108,Karan,Pune,Furniture,Desk,1,7000,4.3
+109,Sneha,Mumbai,Accessories,Mouse Pad,3,300,4.0
+110,Vikas,Delhi,Electronics,Webcam,1,2800,4.6
