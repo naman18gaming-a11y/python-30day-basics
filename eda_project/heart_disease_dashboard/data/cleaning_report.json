@@ -1,0 +1,19 @@
+{
+  "dataset_handle": "johnsmith88/heart-disease-dataset",
+  "created_utc": "2026-07-27T07:35:57.825439+00:00",
+  "source_rows": 1025,
+  "rows_after_blank_row_removal": 1025,
+  "rows_dropped_missing_target": 0,
+  "exact_duplicates_removed": 723,
+  "clean_rows": 302,
+  "non_numeric_values_converted_to_missing": {},
+  "out_of_range_or_invalid_codes": {},
+  "values_imputed": {},
+  "remaining_missing_values": 0,
+  "notes": [
+    "Exact duplicate rows are removed before dashboard analysis.",
+    "Invalid non-target values are replaced with a median (numeric) or mode (categorical) value.",
+    "Invalid or missing target values are removed because outcomes are not inferred.",
+    "A thal value of 0 is retained and labelled 'Unknown / not recorded'."
+  ]
+}
