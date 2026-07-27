@@ -1,9 +1,7 @@
-# main.py
 import streamlit as st
 import pandas as pd
 import numpy as np
 import altair as alt
-from io import BytesIO
 
 st.set_page_config(page_title="Professional Dashboard", layout="wide", initial_sidebar_state="expanded")
 
@@ -13,7 +11,8 @@ st.set_page_config(page_title="Professional Dashboard", layout="wide", initial_s
 @st.cache_data
 def make_sample_data(n=2000, seed=42):
     rng = np.random.default_rng(seed)
-    dates = pd.date_range("2024-01-01", periods=n, freq="H")
+    # FIXED: lowercase "h" avoids ValueError on Python 3.14
+    dates = pd.date_range("2024-01-01", periods=n, freq="h")
     categories = rng.choice(["Alpha", "Beta", "Gamma", "Delta"], size=n, p=[0.35,0.30,0.20,0.15])
     values = np.round(rng.normal(loc=120, scale=40, size=n).clip(min=0), 2)
     region = rng.choice(["North", "South", "East", "West"], size=n)
@@ -46,7 +45,7 @@ else:
     if uploaded is not None:
         try:
             df = pd.read_csv(uploaded)
-            # Try to parse timestamp-like columns
+            # Parse timestamp-like columns
             for col in ["timestamp", "datetime", "date", "time"]:
                 if col in df.columns:
                     try:
@@ -55,18 +54,17 @@ else:
                     except Exception:
                         continue
             if "timestamp" not in df.columns:
-                # create synthetic timestamp if none present
-                df["timestamp"] = pd.date_range("2024-01-01", periods=len(df), freq="H")
+                # FIXED: lowercase "h"
+                df["timestamp"] = pd.date_range("2024-01-01", periods=len(df), freq="h")
             df["date"] = pd.to_datetime(df["timestamp"]).dt.date
             df["hour"] = pd.to_datetime(df["timestamp"]).dt.hour
-            # Ensure numeric columns exist
             if "value" not in df.columns:
                 df["value"] = pd.to_numeric(df.select_dtypes(include=[np.number]).iloc[:,0], errors="coerce").fillna(0)
             if "category" not in df.columns:
                 df["category"] = "Unknown"
             if "region" not in df.columns:
                 df["region"] = "Unknown"
-        except Exception as e:
+        except Exception:
             st.sidebar.error("Could not read CSV. Upload a valid CSV file.")
             st.stop()
     else:
@@ -100,7 +98,6 @@ with st.expander("Filters", expanded=True):
     max_date = pd.to_datetime(df["date"].max())
     date_range = c3.date_input("Date range", [min_date, max_date])
 
-# Apply filters
 mask = pd.Series(True, index=df.index)
 if selected_cat != "All":
     mask &= df["category"] == selected_cat
@@ -112,46 +109,45 @@ if isinstance(date_range, list) and len(date_range) == 2:
 
 filtered = df[mask].copy()
 
+if filtered.empty:
+    st.warning("No data available for the selected filters.")
+    st.stop()
+
 # -------------------------
-# Layout: Charts and Table
+# Charts
 # -------------------------
 left, right = st.columns((2, 1))
 
 with left:
     st.subheader("Time Series Overview")
     ts = filtered.groupby(pd.Grouper(key="timestamp", freq="D")).agg(total_value=("value", "sum")).reset_index()
-    if ts.empty:
-        st.info("No data for selected filters.")
-    else:
-        line = alt.Chart(ts).mark_line(point=True).encode(
-            x=alt.X("timestamp:T", title="Date"),
-            y=alt.Y("total_value:Q", title="Total Value"),
-            tooltip=[alt.Tooltip("timestamp:T", title="Date"), alt.Tooltip("total_value:Q", title="Total")]
-        ).interactive()
-        st.altair_chart(line, use_container_width=True)
+    line = alt.Chart(ts).mark_line(point=True).encode(
+        x=alt.X("timestamp:T", title="Date"),
+        y=alt.Y("total_value:Q", title="Total Value"),
+        tooltip=["timestamp:T", "total_value:Q"]
+    ).interactive()
+    st.altair_chart(line, use_container_width=True)
 
     st.subheader("Category Breakdown")
     cat = filtered.groupby("category").agg(count=("value", "count"), avg_value=("value", "mean")).reset_index()
-    if not cat.empty:
-        bar = alt.Chart(cat).mark_bar().encode(
-            x=alt.X("category:N", sort="-y", title="Category"),
-            y=alt.Y("count:Q", title="Count"),
-            color=alt.Color("avg_value:Q", title="Avg Value", scale=alt.Scale(scheme="tealblues")),
-            tooltip=["category", "count", alt.Tooltip("avg_value:Q", format=".2f")]
-        )
-        st.altair_chart(bar, use_container_width=True)
+    bar = alt.Chart(cat).mark_bar().encode(
+        x=alt.X("category:N", sort="-y", title="Category"),
+        y=alt.Y("count:Q", title="Count"),
+        color=alt.Color("avg_value:Q", title="Avg Value", scale=alt.Scale(scheme="tealblues")),
+        tooltip=["category", "count", "avg_value"]
+    )
+    st.altair_chart(bar, use_container_width=True)
 
 with right:
     st.subheader("Hourly Heatmap")
     heat = filtered.groupby(["hour", "category"]).agg(total=("value", "sum")).reset_index()
-    if not heat.empty:
-        heat_chart = alt.Chart(heat).mark_rect().encode(
-            x=alt.X("hour:O", title="Hour"),
-            y=alt.Y("category:N", title="Category"),
-            color=alt.Color("total:Q", title="Total Value"),
-            tooltip=["hour", "category", alt.Tooltip("total:Q", format=".2f")]
-        ).properties(height=360)
-        st.altair_chart(heat_chart, use_container_width=True)
+    heat_chart = alt.Chart(heat).mark_rect().encode(
+        x=alt.X("hour:O", title="Hour"),
+        y=alt.Y("category:N", title="Category"),
+        color=alt.Color("total:Q", title="Total Value"),
+        tooltip=["hour", "category", "total"]
+    ).properties(height=360)
+    st.altair_chart(heat_chart, use_container_width=True)
 
 st.markdown("---")
 
@@ -177,17 +173,14 @@ with col_b:
     run = st.button("Run")
 
 if run:
-    if group_by not in filtered.columns:
-        st.error("Selected group by column not available.")
+    if agg_func == "count":
+        result = filtered.groupby(group_by).size().reset_index(name="count")
     else:
-        if agg_func == "count":
-            result = filtered.groupby(group_by).size().reset_index(name="count")
-        else:
-            result = filtered.groupby(group_by).agg(result_value=("value", agg_func)).reset_index()
-        st.table(result.sort_values(result.columns[-1], ascending=False).head(20))
+        result = filtered.groupby(group_by).agg(result_value=("value", agg_func)).reset_index()
+    st.table(result.sort_values(result.columns[-1], ascending=False).head(20))
 
 # -------------------------
-# Notes and Tips
+# Notes
 # -------------------------
 st.markdown("### Notes")
 st.markdown(
