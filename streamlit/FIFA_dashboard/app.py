@@ -85,7 +85,7 @@ st.markdown("""
 @st.cache_data
 def load_data():
     """Load and preprocess the FIFA World Cup dataset"""
-    df = pd.read_csv("fifa_worldcup_players.csv")
+    df = pd.read_csv("1.csv")
     
     # Add derived metrics
     df['Goal_Contribution'] = df['Goals'] + df['Assists']
@@ -99,7 +99,7 @@ def load_data():
 try:
     df = load_data()
 except FileNotFoundError:
-    st.error("❌ 'fifa_worldcup_players.csv' not found! Please make sure the file is in the same directory.")
+    st.error("❌ '1.csv' not found! Please make sure the file is in the same directory.")
     st.stop()
 
 # Animated header
