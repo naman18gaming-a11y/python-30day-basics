@@ -5,7 +5,7 @@ class BankAccount:
         # private attribute
         self.__balance = initial_balance
 
-    # deposit method
+    
     def deposit(self, amount):
         if amount > 0:
             self.__balance += amount
@@ -26,9 +26,9 @@ class BankAccount:
         return self.__balance
 
 
-account = BankAccount(1000)   # start with 1000 balance
+account = BankAccount(1000)   
 
-account.deposit(500)          # balance = 1500
-account.withdraw(200)         # balance = 1300
-account.withdraw(2000)        # insufficient funds
-print("Current Balance:", account.get_balance())  # balance = 1300
+account.deposit(500)          
+account.withdraw(200)       
+account.withdraw(2000)        # insufficient fund
+print("Current Balance:", account.get_balance())  
